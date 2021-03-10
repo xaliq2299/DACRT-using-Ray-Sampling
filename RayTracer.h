@@ -94,6 +94,7 @@ public:
         std::vector<std::vector<bool>> visited; // todo: check the dimensions
 
 #pragma omp parallel for
+        // Todo: do we need Ray.x and Ray.y?
         for(int i = 0; i < h; i++) {
             for (int j = 0; j < w; j++) {
                 if (visited[j][i])
