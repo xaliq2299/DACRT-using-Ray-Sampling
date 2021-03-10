@@ -54,7 +54,7 @@ int main (int argc, char ** argv) {
 
 	Mesh mesh;
 	try {
-		mesh.loadOFF("example.off");
+		mesh.loadOFF("low_res_mesh.off");
 	}
 	catch (const std::exception & e) {
 		std::cerr << e.what() << std::endl;
@@ -86,13 +86,14 @@ int main (int argc, char ** argv) {
 //    std::cout << binning.get_bin_length() << '\n';
 
     // testing filling of bins (just printing)
-//    AABB aabb(Vec3f{0,0,3}, Vec3f{22,60,60});
-//	Binning binning(aabb, 80);
-//    binning.fill_bins();
+    AABB aabb(Vec3f{0,0,3}, Vec3f{22,60,60});
+	Binning binning(mesh, 5);
+    binning.fill_bins();
+    binning.print_summary();
 
     // testing filling of bins (real filling with meshes)
-    std::vector<Triangle> m_indexedTriangles = mesh.indexedTriangles();
-    std::vector<Vec3f> m_vertexPositions = mesh.vertexPositions();
+//    std::vector<Triangle> m_indexedTriangles = mesh.indexedTriangles();
+//    std::vector<Vec3f> m_vertexPositions = mesh.vertexPositions();
 
 //    for(int i=0;i<m_indexedTriangles.size();i++){
 //	    std::cout << "Triangle " << i+1 << ": " << m_indexedTriangles[i][0] << " "
@@ -102,8 +103,6 @@ int main (int argc, char ** argv) {
 //                  << m_indexedTriangles[i][1] << "=" << m_vertexPositions[m_indexedTriangles[i][0]] << ", "
 //                  << m_indexedTriangles[i][2] << "=" << m_vertexPositions[m_indexedTriangles[i][0]] << '\n';
 //    }
-
-
 
 
 	return 0;

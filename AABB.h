@@ -21,6 +21,10 @@ public:
 
     inline Vec3f get_max() { return maximum; }
 
+    void print(){
+        std::cout << "For the given AABB, minimum=" << minimum << ", maximum=" << maximum << '\n';
+    }
+
     // todo: bool intersect to be changed
 //    bool intersect(const Ray &r, float &entry, float &exit)
 //    {
