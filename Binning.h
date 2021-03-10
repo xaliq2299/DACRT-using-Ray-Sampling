@@ -24,7 +24,7 @@ public:
     Binning(Mesh& mesh, size_t K){
         this->mesh = mesh;
         this->K = K;
-        this->aabb = construct_AABB();
+        this->aabb = AABB(mesh);
         this->bin_length = get_bin_length();
 
         for(int i=0;i<K;i++){
@@ -33,6 +33,7 @@ public:
         }
     }
 
+    /*
     AABB construct_AABB(){
         std::vector<Triangle> indexedTriangles = mesh.indexedTriangles();
         std::vector<Vec3f> vertexPositions = mesh.vertexPositions();
@@ -73,6 +74,7 @@ public:
         AABB constructed_aabb({min_x, min_y, min_z}, {max_x, max_y, max_z});
         return constructed_aabb;
     }
+     */
 
     size_t find_binning_axis(){ // todo: binning is done based on the longest axis
         Vec3f min = aabb.get_min(), max = aabb.get_max();

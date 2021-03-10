@@ -22,7 +22,7 @@ public:
                             float & v,
                             float & t) const;
 
-private:
+//private: // todo private or public?
     Vec3f m_origin;
     Vec3f m_direction;
 };

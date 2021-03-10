@@ -84,4 +84,34 @@ public:
 			}
 		}
 	}
+
+
+	// render function remastered for the project todo: try not to copy
+    inline void render (const Scene& scene, Image& image, vector<Ray> Rays, int &counter) {
+        size_t w = image.width();
+        size_t h = image.height();
+        const Camera& camera = scene.camera();
+        std::vector<std::vector<bool>> visited; // todo: check the dimensions
+
+#pragma omp parallel for
+        for(int i = 0; i < h; i++) {
+            for (int j = 0; j < w; j++) {
+                if (visited[j][i])
+                    continue;
+                visited[j][i] = true;
+
+                float u, v, d;
+                size_t meshIndex, triangleIndex;
+                Ray ray = camera.rayAt(float(j) / w, 1.f - float(i) / h);
+                bool intersectionFound = rayTrace(ray, scene, meshIndex, triangleIndex, u, v, d);
+                if (intersectionFound && d > 0.f) {
+
+                    image(j, i) = shade(scene, meshIndex, triangleIndex, u, v);
+
+                    counter++;
+                }
+            }
+        }
+        //image.savePPM ("DACRT2");
+    }
 };
