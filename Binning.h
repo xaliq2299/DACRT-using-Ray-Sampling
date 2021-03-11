@@ -27,7 +27,7 @@ public:
         this->aabb = AABB(mesh);
         this->bin_length = get_bin_length();
 
-        for(int i=0;i<K;i++){
+        for(int i=0;i<K-1;i++){
             Bin bin;
             bins.push_back(bin);
         }
@@ -102,7 +102,7 @@ public:
 
         size_t axis_ind = find_binning_axis();
         float start = aabb.get_min()[axis_ind];
-        for(size_t k=1;k<K;k++){
+        for(size_t k=0;k<K-1;k++){
 //            std::cout << "Bin " << k << ": ";
             float min_x_left = vertexPositions[indexedTriangles[0][0]][0],
             min_y_left = vertexPositions[indexedTriangles[0][0]][1],
@@ -118,7 +118,7 @@ public:
             max_z_right = vertexPositions[indexedTriangles[0][0]][2];
 
             // std::cout << "Bin " << k << ": position " << position+k*bin_length << '\n';
-            float position = start+k*bin_length;
+            float position = start+(k+1)*bin_length;
             for(size_t tr_ind=0;tr_ind<indexedTriangles.size();tr_ind++){
 //                std::cout << "Triangle " << tr_ind+1 << ", ";
                 float a = vertexPositions[indexedTriangles[tr_ind][0]][axis_ind],
@@ -204,7 +204,7 @@ public:
     }
 
     void print_summary(){ // for debugging purposes
-        for(int k=1;k<bins.size();k++){ // Binning should start from k=1
+        for(int k=0;k<bins.size();k++){ // Binning should start from k=1
             std::cout << "\nBin " << k << '\n';
 
             std::cout << "Left AABB: ";

@@ -129,7 +129,7 @@ int main (int argc, char ** argv) {
     }
 
     // Here starts mine
-    int nbBins = 10;
+    int nbBins = 5;
     DACRT dacrt(mesh, image, nbBins);
 	AABB volume(mesh);
 	auto& triangles = mesh.indexedTriangles();

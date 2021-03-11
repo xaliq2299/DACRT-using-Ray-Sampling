@@ -49,35 +49,42 @@ public:
             // todo: naive RT
         }
 
-        // TODO: check why first bin has always 100 sample rays in the right bin. Problem with index
-        // TODO: during the binning process
+        // SOLVED! TODO: check why first bin has always 100 sample rays in the right bin. Problem with index during the binning process
 
         // Partitioning using cost function
         float C_min = std::numeric_limits<float>::infinity(); size_t j_min = 1;
         std::vector<float> alpha_left(K-1, 0), alpha_right(K-1, 0);
         for(int j=0;j<K-1;j++){
+//            std::cout << "Bin " << j+1 << '\n';
             alpha_left[j] = float(c_left[j])/float(nbSampleRays);
             alpha_right[j] = float(c_right[j])/float(nbSampleRays);
-            std::cout << alpha_left[j] << " " << alpha_right[j] << '\n';
             // calculating cost C
 //            float C_T = 1.0, C_I = 1.0; // todo: constants
             int N_L = binning.bins[j].T_left.size(), N_R = binning.bins[j].T_right.size();
-            float C = alpha_left[j]*N_L + alpha_right[j]*N_R;
+            // debugging
+//            std::cout << "alpha_left=" << alpha_left[j] << " , alpha_right[j]=" << alpha_right[j] << '\n';
+//            std::cout << "N_L = " << N_L << ", N_R = " << N_R << '\n';
+            float C = alpha_left[j]*float(N_L) + alpha_right[j]*float(N_R);
+//            std::cout << " C = " << C << '\n';
             if(C <= C_min){
                 j_min = j;
                 C_min = C;
             }
         }
 
+        // SOLVED! TODO: why the entries for the first bin are always splitted as 0 in the left and 100 in the right
         // Printing for debugging
+        /*
         std::cout << "j_min = " << j_min << ", C_min = " << C_min << '\n';
         std::cout << "C_left = {";
-        for(int i=0;i<c_left.size();i++)
+        for(int i=0;i<c_left.size();i++) {
             std::cout << c_left[i] << ", ";
+        }
         std::cout << "}.\n";
         std::cout << "C_right = {";
-        for(int i=0;i<c_right.size();i++)
+        for(int i=0;i<c_right.size();i++) {
             std::cout << c_right[i] << ", ";
+        }
         std::cout << "}.\n";
         std::cout << "n_left = {";
         for(int i=0;i<n_left.size();i++)
@@ -87,6 +94,7 @@ public:
         for(int i=0;i<n_right.size();i++)
             std::cout << n_right[i] << ", ";
         std::cout << "}.\n";
+        */
     }
 
     void Intersect(Ray& r, std::vector<Bin>& bins, std::vector<int>& c_left, std::vector<int>& c_right,
