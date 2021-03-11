@@ -8,7 +8,7 @@
 #include "AABB.h"
 
 struct Bin{
-    std::vector<size_t> T_left, T_right; // triangles in the left and right bounding volumes
+    std::vector<Triangle> T_left, T_right; // triangles in the left and right bounding volumes
     AABB box_left, box_right; // left and right AABBs for a given bin
 };
 
@@ -142,7 +142,7 @@ public:
                 if(barycenter > position) {
 //                    std::cout << "goes to right\n";
 //                    std::cout << "Inside barycenter check right\n";
-                    bins[k].T_right.push_back(tr_ind);
+                    bins[k].T_right.push_back(indexedTriangles[tr_ind]);
                     float cur_max_x_right = std::max(std::max(x1,x2), x3);
                     float cur_min_x_right = std::min(std::min(x1,x2), x3);
                     float cur_max_y_right = std::max(std::max(y1,y2), y3);
@@ -167,7 +167,7 @@ public:
                 else{
 //                    std::cout << "goes to left\n";
 //                    std::cout << "Inside barycenter check left\n";
-                    bins[k].T_left.push_back(tr_ind);
+                    bins[k].T_left.push_back(indexedTriangles[tr_ind]);
                     float cur_min_x_left = std::min(std::min(x1,x2), x3);
                     float cur_max_x_left = std::max(std::max(x1,x2), x3);
                     float cur_min_y_left = std::min(std::min(y1,y2), y3);
@@ -205,7 +205,7 @@ public:
 
     void print_summary(){ // for debugging purposes
         for(int k=0;k<bins.size();k++){ // Binning should start from k=1
-            std::cout << "\nBin " << k << '\n';
+            std::cout << "\nBin " << k+1 << '\n';
 
             std::cout << "Left AABB: ";
             bins[k].box_left.print();

@@ -68,7 +68,7 @@ int main (int argc, char ** argv) {
 
 	// Rendering (prof)
 
-//	RayTracer rayTracer;
+	RayTracer rayTracer;
 //	image.fillBackground (); todo: needed?
 //	std::cout << "Ray tracing: starts";
 //	rayTracer.render (scene, image);
@@ -130,7 +130,7 @@ int main (int argc, char ** argv) {
 
     // Here starts mine
     int nbBins = 5;
-    DACRT dacrt(mesh, image, nbBins);
+    DACRT dacrt(mesh, image, scene, rayTracer, nbBins);
 	AABB volume(mesh);
 	auto& triangles = mesh.indexedTriangles();
 	dacrt.run(volume, rays, triangles);

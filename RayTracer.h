@@ -87,7 +87,7 @@ public:
 
 
 	// render function remastered for the project todo: try not to copy
-    inline void render (const Scene& scene, Image& image, vector<Ray> Rays, int &counter) {
+    inline void render (const Scene& scene, Image& image, vector<Ray> Rays) {
         size_t w = image.width();
         size_t h = image.height();
         const Camera& camera = scene.camera();
@@ -109,7 +109,6 @@ public:
 
                     image(j, i) = shade(scene, meshIndex, triangleIndex, u, v);
 
-                    counter++;
                 }
             }
         }
