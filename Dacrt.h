@@ -6,10 +6,13 @@ public:
     Image image;
     Scene scene;
     RayTracer rayTracer;
+    int globalCounter = 0;
+    int sentinal_nb_triangles = 0;
 //    std::vector<Ray> Rays; // todo needed or no? passing to 'run' method directly while calling it
     Mesh mesh; // mesh data
     int K; // number of bins
     int i;
+    bool visited [ROW][COLUMN];
 
     DACRT(Mesh& mesh, Image image, Scene scene, RayTracer rayTracer, int K){
         i = 0;
@@ -18,6 +21,13 @@ public:
         this->image = image;
         this->rayTracer = rayTracer;
         this->scene = scene;
+
+        // todo: try not to copy the following
+        for(int i=0; i<ROW; i++) {
+            for(int j=0; j<COLUMN; j++) {
+                visited[i][j] = false;
+            }
+        }
     }
 
     /*
@@ -25,9 +35,18 @@ public:
      R - set of active rays
      T - set of triangles
     */
-    void run(AABB V, std::vector<Ray> rays, std::vector<Triangle> triangles) {
+    void run(AABB& V, std::vector<Ray>& rays, std::vector<Triangle>& triangles) {
         // debugging
         i+=1;
+//        if(i == 12){
+//            exit(1);
+//        }
+
+//        if(triangles.size() == 21){
+//            image.savePPM("DACRT");
+//            exit(1);
+//        }
+
 //        std::cout << "Recursive step " << i << '\n';
 
         int nbActiveRays = rays.size(), nbTriangles = triangles.size(), nbSampleRays;
@@ -36,18 +55,10 @@ public:
 
 //        std::cout << "# active rays=" << nbActiveRays << " # triangles=" << nbTriangles << '\n';
 
-        // The recursion starts here - the following is the basic step
-        bool small_enough = nbActiveRays < 10 || nbTriangles < 10; // todo: which values?
-        if(small_enough){
-            // todo: naive RT
-            std::cout << "Entered\n";
-            rayTracer.render(scene, image, rays);
-            return;
-        }
-
+        // Todo: Ray sampling should come after Naive RT or?
         // Ray sampling
         if(nbActiveRays > 1000){ // sample 100 rays if enough active rays
-            sample(rays, sampledRays);
+            sample(rays, sampledRays); // todO: maybe some error with sampling?
             nbSampleRays = 100;
         }
         else{
@@ -55,8 +66,30 @@ public:
             nbSampleRays = nbActiveRays;
         }
 
-        Binning binning(mesh, K); // subdivide V into K bins
-        binning.fill_bins(); // calculate data for each bin Bj
+
+        if(nbTriangles == sentinal_nb_triangles){
+            rayTracer.myRender(scene, image, rays, globalCounter, visited);
+            return;
+        }
+        else{
+            sentinal_nb_triangles = nbTriangles;
+        }
+
+
+        // The recursion starts here - the following is the basic step
+        bool small_enough = nbActiveRays < 10 || nbTriangles < 20; // todo: which values?
+        if(small_enough){
+            // todo: naive RT
+//            std::cout << "Entered Naive RT\n";
+//            rayTracer.render(scene, image, rays);
+            rayTracer.myRender(scene, image, rays, globalCounter, visited);
+//            std::cout << "Finished Naive RT\n";
+            return;
+        }
+
+//        Binning binning(mesh, K); // subdivide V into K bins
+        Binning binning(mesh, V, K); // maybe more efficient, trying to avoid the mesh passing each time?
+        binning.fill_bins(triangles); // calculate data for each bin Bj
 //        binning.print_summary();
 
         // initialize arrays c_left, c_right, n_left, n_right
@@ -70,25 +103,31 @@ public:
         // SOLVED! TODO: check why first bin has always 100 sample rays in the right bin. Problem with index during the binning process
 
         // Partitioning using Cost function
-        float C_min = std::numeric_limits<float>::infinity(); size_t j_min = 1;
+        float C_min = std::numeric_limits<float>::infinity(); size_t j_min = 0;
         std::vector<float> alpha_left(K-1, 0), alpha_right(K-1, 0);
         for(int j=0;j<K-1;j++){
 //            std::cout << "Bin " << j+1 << '\n';
             alpha_left[j] = float(c_left[j])/float(nbSampleRays);
             alpha_right[j] = float(c_right[j])/float(nbSampleRays);
             // calculating cost C
-//            float C_T = 1.0, C_I = 1.0; // todo: constants
+            float C_T = 1.0, C_I = 1.0; // todo: constants
             int N_L = binning.bins[j].T_left.size(), N_R = binning.bins[j].T_right.size();
             // debugging
 //            std::cout << "alpha_left=" << alpha_left[j] << " , alpha_right[j]=" << alpha_right[j] << '\n';
 //            std::cout << "N_L = " << N_L << ", N_R = " << N_R << '\n';
-            float C = alpha_left[j]*float(N_L) + alpha_right[j]*float(N_R);
+            float C = C_T + C_I*(alpha_left[j]*float(N_L) + alpha_right[j]*float(N_R));
 //            std::cout << " C = " << C << '\n';
             if(C <= C_min){
                 j_min = j;
                 C_min = C;
             }
         }
+        // debugging
+//        if(triangles.size() == 21){
+//            binning.print_summary();
+//            std::cout << "Cmin = " << C_min << ", jmin = " << j_min << '\n';
+//            exit(1);
+//        }
 
         // SOLVED! TODO: why the entries for the first bin are always splitted as 0 in the left and 100 in the right
         // Printing for debugging
@@ -131,27 +170,48 @@ public:
         }
 
         // Step 4 - Ray filtering
+        // TODO: the problem is probably in the alpha > 0.5 condition
+        float entry, exit;
         // TODO: now we are using 0.5 as a threshold, try to calculate the cost later?
-        std::cout << "alpha0 = " << alpha0 << '\n';
+//        std::cout << "alpha0 = " << alpha0 << '\n';
+//        std::cout << "Cmin=" << C_min << "j_min = " << j_min << '\n';
         if(alpha0 > 0.5){ // skip ray filtering
-            std::cout << ("Entered 0 left\n");
+//            std::cout << ("Entered 0 left\n");
             run(V0, rays, T0);
+            i-=1;
         }
         else{ // apply ray filtering
-            std::cout << ("Entered 0 right\n");
+//            std::cout << ("Entered 0 right\n");
             std::vector<Ray> R0;
-            sample(rays, R0);
+
+//            sample(rays, R0);
+            for(int i=0;i<rays.size();i++){
+                if(V0.intersect(rays[i], entry, exit)){
+                    R0.push_back(rays[i]);
+                }
+            }
+
             run(V0, R0, T0);
+            i-=1;
         }
         if(alpha1 > 0.5){ // skip ray filtering
-            std::cout << ("Entered 1 left\n");
+//            std::cout << ("Entered 1 left\n");
             run(V1, rays, T1);
+            i-=1;
         }
         else{
-            std::cout << ("Entered 1 right\n");
+//            std::cout << ("Entered 1 right\n");
             std::vector<Ray> R1;
-            sample(rays, R1);
+
+//            sample(rays, R1);
+            for(int i=0;i<rays.size();i++){
+                if(V1.intersect(rays[i], entry, exit)){
+                    R1.push_back(rays[i]);
+                }
+            }
+
             run(V1, R1, T1);
+            i-=1;
         }
     }
 

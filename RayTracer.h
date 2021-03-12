@@ -9,6 +9,8 @@
 #include "Image.h"
 #include "Camera.h"
 #include "Scene.h"
+#define ROW 480
+#define COLUMN 270
 
 using namespace std;
 
@@ -87,29 +89,92 @@ public:
 
 
 	// render function remastered for the project todo: try not to copy
-    inline void render (const Scene& scene, Image& image, vector<Ray> Rays) {
+    inline void render (const Scene& scene, Image& image, vector<Ray>& Rays) {
         size_t w = image.width();
         size_t h = image.height();
         const Camera& camera = scene.camera();
         std::vector<std::vector<bool>> visited; // todo: check the dimensions
+        std::cout << "Before filling\n";
+        for(int i=0; i<w; i++){
+            visited.push_back(std::vector<bool>());
+            for(int j=0; j<h; j++){
+                visited[i].push_back(false);
+            }
+        }
+        std::cout << "After filling\n";
+//        std::cout << "Width=" << w << ", Height=" << h << '\n';
+//        std::cout << "Before loops\n";
 
 #pragma omp parallel for
         // Todo: do we need Ray.x and Ray.y?
+        for(int i = 0; i<Rays.size(); i++) {
+            if(visited[Rays.at(i).x][Rays.at(i).y])
+                continue;
+            visited[Rays.at(i).x][Rays.at(i).y] = true;
+            float u, v, d;
+            size_t meshIndex, triangleIndex;
+            Ray ray = camera.rayAt (float (Rays.at(i).x) / w, 1.f - float (Rays.at(i).y) / h);
+            bool intersectionFound = rayTrace (ray, scene, meshIndex, triangleIndex, u, v, d);
+            if (intersectionFound && d > 0.f){
+
+                image (Rays.at(i).x, Rays.at(i).y) = shade (scene, meshIndex, triangleIndex, u, v);
+
+            }
+        }
+//        image.savePPM ("DACRT2");
+//        exit(0);
+
+        /*
         for(int i = 0; i < h; i++) {
             for (int j = 0; j < w; j++) {
-                if (visited[j][i])
+//                std::cout << "i=" << i << ", j=" <<  j << ".\n";
+//                std::cout << "Here\n";
+                if (visited[j][i]) {
+//                    std::cout << "entered visited\n";
                     continue;
+                }
+//                std::cout << "Here\n";
                 visited[j][i] = true;
 
                 float u, v, d;
                 size_t meshIndex, triangleIndex;
+//                std::cout << "Here\n";
                 Ray ray = camera.rayAt(float(j) / w, 1.f - float(i) / h);
+//                std::cout << "Here\n";
                 bool intersectionFound = rayTrace(ray, scene, meshIndex, triangleIndex, u, v, d);
                 if (intersectionFound && d > 0.f) {
 
                     image(j, i) = shade(scene, meshIndex, triangleIndex, u, v);
 
+                // todo: not using counter
                 }
+            }
+        }
+        */
+    }
+
+
+    // todo: try not to copy the following
+    inline void myRender (const Scene& scene, Image& image, vector<Ray> Rays, int &counter, bool (&visited)[ROW][COLUMN]) {
+        size_t w = image.width();
+        size_t h = image.height();
+        const Camera& camera = scene.camera();
+
+#pragma omp parallel for
+        for(int i = 0; i<Rays.size(); i++) {
+            if(visited[Rays.at(i).x][Rays.at(i).y])
+                continue;
+            visited[Rays.at(i).x][Rays.at(i).y] = true;
+            float u, v, d;
+            size_t meshIndex, triangleIndex;
+            Ray ray = camera.rayAt (float (Rays.at(i).x) / w, 1.f - float (Rays.at(i).y) / h);
+            bool intersectionFound = rayTrace (ray, scene, meshIndex, triangleIndex, u, v, d);
+            if (intersectionFound && d > 0.f){
+
+                image (Rays.at(i).x, Rays.at(i).y) = shade (scene, meshIndex, triangleIndex, u, v);
+
+                counter++;
+
             }
         }
         //image.savePPM ("DACRT2");

@@ -25,5 +25,6 @@ public:
 //private: // todo private or public?
     Vec3f m_origin;
     Vec3f m_direction;
+    int x, y; // todo: try not to copy
 };
 
