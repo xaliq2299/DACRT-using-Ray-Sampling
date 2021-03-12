@@ -33,6 +33,18 @@ public:
         }
     }
 
+    Binning(Mesh& mesh, AABB aabb, size_t K){
+        this->mesh = mesh;
+        this->K = K;
+        this->aabb = aabb;
+        this->bin_length = get_bin_length();
+
+        for(int i=0;i<K-1;i++){
+            Bin bin;
+            bins.push_back(bin);
+        }
+    }
+
     /*
     AABB construct_AABB(){
         std::vector<Triangle> indexedTriangles = mesh.indexedTriangles();
@@ -96,45 +108,45 @@ public:
         return abs(aabb.get_min()[axis_ind] - aabb.get_max()[axis_ind])/K;
     }
 
-    void fill_bins(){
-        std::vector<Triangle> indexedTriangles = mesh.indexedTriangles();
+    void fill_bins(std::vector<Triangle>& triangles){
+//        std::vector<Triangle> indexedTriangles = mesh.indexedTriangles();
         std::vector<Vec3f> vertexPositions = mesh.vertexPositions();
 
         size_t axis_ind = find_binning_axis();
         float start = aabb.get_min()[axis_ind];
         for(size_t k=0;k<K-1;k++){
 //            std::cout << "Bin " << k << ": ";
-            float min_x_left = vertexPositions[indexedTriangles[0][0]][0],
-            min_y_left = vertexPositions[indexedTriangles[0][0]][1],
-            min_z_left = vertexPositions[indexedTriangles[0][0]][2];
-            float min_x_right = vertexPositions[indexedTriangles[0][0]][0],
-            min_y_right = vertexPositions[indexedTriangles[0][0]][1],
-            min_z_right = vertexPositions[indexedTriangles[0][0]][2];
-            float max_x_left = vertexPositions[indexedTriangles[0][0]][0],
-            max_y_left = vertexPositions[indexedTriangles[0][0]][1],
-            max_z_left = vertexPositions[indexedTriangles[0][0]][2];
-            float max_x_right = vertexPositions[indexedTriangles[0][0]][0],
-            max_y_right = vertexPositions[indexedTriangles[0][0]][1],
-            max_z_right = vertexPositions[indexedTriangles[0][0]][2];
+            float min_x_left = vertexPositions[triangles[0][0]][0],
+            min_y_left = vertexPositions[triangles[0][0]][1],
+            min_z_left = vertexPositions[triangles[0][0]][2];
+            float min_x_right = vertexPositions[triangles[0][0]][0],
+            min_y_right = vertexPositions[triangles[0][0]][1],
+            min_z_right = vertexPositions[triangles[0][0]][2];
+            float max_x_left = vertexPositions[triangles[0][0]][0],
+            max_y_left = vertexPositions[triangles[0][0]][1],
+            max_z_left = vertexPositions[triangles[0][0]][2];
+            float max_x_right = vertexPositions[triangles[0][0]][0],
+            max_y_right = vertexPositions[triangles[0][0]][1],
+            max_z_right = vertexPositions[triangles[0][0]][2];
 
             // std::cout << "Bin " << k << ": position " << position+k*bin_length << '\n';
             float position = start+(k+1)*bin_length;
-            for(size_t tr_ind=0;tr_ind<indexedTriangles.size();tr_ind++){
+            for(size_t tr_ind=0;tr_ind<triangles.size();tr_ind++){
 //                std::cout << "Triangle " << tr_ind+1 << ", ";
-                float a = vertexPositions[indexedTriangles[tr_ind][0]][axis_ind],
-                      b = vertexPositions[indexedTriangles[tr_ind][1]][axis_ind],
-                      c = vertexPositions[indexedTriangles[tr_ind][2]][axis_ind];
+                float a = vertexPositions[triangles[tr_ind][0]][axis_ind],
+                      b = vertexPositions[triangles[tr_ind][1]][axis_ind],
+                      c = vertexPositions[triangles[tr_ind][2]][axis_ind];
                 float barycenter = (a+b+c)/3;
                 // todo: what about the equal case?
-                float x1 = vertexPositions[indexedTriangles[tr_ind][0]][0];
-                float x2 = vertexPositions[indexedTriangles[tr_ind][1]][0];
-                float x3 = vertexPositions[indexedTriangles[tr_ind][2]][0];
-                float y1 = vertexPositions[indexedTriangles[tr_ind][0]][1];
-                float y2 = vertexPositions[indexedTriangles[tr_ind][1]][1];
-                float y3 = vertexPositions[indexedTriangles[tr_ind][2]][1];
-                float z1 = vertexPositions[indexedTriangles[tr_ind][0]][2];
-                float z2 = vertexPositions[indexedTriangles[tr_ind][1]][2];
-                float z3 = vertexPositions[indexedTriangles[tr_ind][2]][2];
+                float x1 = vertexPositions[triangles[tr_ind][0]][0];
+                float x2 = vertexPositions[triangles[tr_ind][1]][0];
+                float x3 = vertexPositions[triangles[tr_ind][2]][0];
+                float y1 = vertexPositions[triangles[tr_ind][0]][1];
+                float y2 = vertexPositions[triangles[tr_ind][1]][1];
+                float y3 = vertexPositions[triangles[tr_ind][2]][1];
+                float z1 = vertexPositions[triangles[tr_ind][0]][2];
+                float z2 = vertexPositions[triangles[tr_ind][1]][2];
+                float z3 = vertexPositions[triangles[tr_ind][2]][2];
 //                std::cout << vertexPositions[indexedTriangles[tr_ind][0]] << " "
 //                          << vertexPositions[indexedTriangles[tr_ind][1]] << " "
 //                          << vertexPositions[indexedTriangles[tr_ind][2]] << '\n';
@@ -142,7 +154,7 @@ public:
                 if(barycenter > position) {
 //                    std::cout << "goes to right\n";
 //                    std::cout << "Inside barycenter check right\n";
-                    bins[k].T_right.push_back(indexedTriangles[tr_ind]);
+                    bins[k].T_right.push_back(triangles[tr_ind]);
                     float cur_max_x_right = std::max(std::max(x1,x2), x3);
                     float cur_min_x_right = std::min(std::min(x1,x2), x3);
                     float cur_max_y_right = std::max(std::max(y1,y2), y3);
@@ -167,7 +179,7 @@ public:
                 else{
 //                    std::cout << "goes to left\n";
 //                    std::cout << "Inside barycenter check left\n";
-                    bins[k].T_left.push_back(indexedTriangles[tr_ind]);
+                    bins[k].T_left.push_back(triangles[tr_ind]);
                     float cur_min_x_left = std::min(std::min(x1,x2), x3);
                     float cur_max_x_left = std::max(std::max(x1,x2), x3);
                     float cur_min_y_left = std::min(std::min(y1,y2), y3);
