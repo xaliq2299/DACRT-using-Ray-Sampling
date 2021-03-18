@@ -12,7 +12,6 @@ public:
     Mesh mesh; // mesh data
     int K; // number of bins
     int i;
-    bool visited [ROW][COLUMN];
 
     DACRT(Mesh& mesh, Image image, Scene scene, RayTracer rayTracer, int K){
         i = 0;
@@ -21,13 +20,6 @@ public:
         this->image = image;
         this->rayTracer = rayTracer;
         this->scene = scene;
-
-        // todo: try not to copy the following
-        for(int i=0; i<ROW; i++) {
-            for(int j=0; j<COLUMN; j++) {
-                visited[i][j] = false;
-            }
-        }
     }
 
     /*
@@ -68,7 +60,7 @@ public:
 
 
         if(nbTriangles == sentinal_nb_triangles){
-            rayTracer.myRender(scene, image, rays, globalCounter, visited);
+            rayTracer.render(scene, image, rays);
             return;
         }
         else{
@@ -82,7 +74,7 @@ public:
             // todo: naive RT
 //            std::cout << "Entered Naive RT\n";
 //            rayTracer.render(scene, image, rays);
-            rayTracer.myRender(scene, image, rays, globalCounter, visited);
+            rayTracer.render(scene, image, rays);
 //            std::cout << "Finished Naive RT\n";
             return;
         }
@@ -244,9 +236,5 @@ public:
                     100, std::mt19937{std::random_device{}()});
         for(int i=0;i<sampling_indices.size();i++)
             sampledRays.push_back(rays[sampling_indices[i]]);
-    }
-
-    void print_summary(){ // for debugging purposes
-
     }
 };
