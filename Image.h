@@ -25,7 +25,7 @@ public:
 
 	inline Vec3f & operator() (size_t x, size_t y) { return m_pixels[y*m_width+x]; }
 
-	inline void fillBackground (const Vec3f & color = Vec3f (0.f, 0.f, 1.f)) {
+	inline void fillBackground () {
 		for (size_t y = 0; y < m_height; y++)
 			for (size_t x = 0; x < m_width; x++) {
 				static const Vec3f color0 (0.1f, 0.2f, 0.8f);
@@ -44,13 +44,14 @@ public:
     	out << "P3" << std::endl
     		<< m_width << " " << m_height << std::endl
     		<< "255" << std::endl;
-    	for (size_t y = 0; y < m_height; y++)
+    	for (size_t y = 0; y < m_height; y++){
 			for (size_t x = 0; x < m_width; x++) {
 				out << static_cast<unsigned int> (255.f * m_pixels[y*m_width+x][0]) << " "
 					<< static_cast<unsigned int> (255.f * m_pixels[y*m_width+x][1]) << " "
 					<< static_cast<unsigned int> (255.f * m_pixels[y*m_width+x][2]) << " ";
 			}
 			out << std::endl;
+    	}
     	out.close ();
 	}
 

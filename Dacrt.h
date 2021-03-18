@@ -6,11 +6,10 @@ public:
     Image image;
     Scene scene;
     RayTracer rayTracer;
-    int globalCounter = 0;
     int sentinal_nb_triangles = 0;
 //    std::vector<Ray> Rays; // todo needed or no? passing to 'run' method directly while calling it
     Mesh mesh; // mesh data
-    int K; // number of bins
+    size_t K; // number of bins
     int i;
 
     DACRT(Mesh& mesh, Image image, Scene scene, RayTracer rayTracer, int K){
@@ -87,7 +86,7 @@ public:
         // initialize arrays c_left, c_right, n_left, n_right
         std::vector<int> c_left(K-1, 0), c_right(K-1, 0), n_left(K-1, 0), n_right(K-1, 0);
 
-        for(int i=0;i<sampledRays.size();i++) {
+        for(size_t i=0;i<sampledRays.size();i++) {
             Ray r = sampledRays[i];
             Intersect(r, binning.bins, c_left, c_right, n_left, n_right);
         }
@@ -97,7 +96,7 @@ public:
         // Partitioning using Cost function
         float C_min = std::numeric_limits<float>::infinity(); size_t j_min = 0;
         std::vector<float> alpha_left(K-1, 0), alpha_right(K-1, 0);
-        for(int j=0;j<K-1;j++){
+        for(size_t j=0;j<K-1;j++){
 //            std::cout << "Bin " << j+1 << '\n';
             alpha_left[j] = float(c_left[j])/float(nbSampleRays);
             alpha_right[j] = float(c_right[j])/float(nbSampleRays);
@@ -177,7 +176,7 @@ public:
             std::vector<Ray> R0;
 
 //            sample(rays, R0);
-            for(int i=0;i<rays.size();i++){
+            for(size_t i=0;i<rays.size();i++){
                 if(V0.intersect(rays[i], entry, exit)){
                     R0.push_back(rays[i]);
                 }
@@ -196,7 +195,7 @@ public:
             std::vector<Ray> R1;
 
 //            sample(rays, R1);
-            for(int i=0;i<rays.size();i++){
+            for(size_t i=0;i<rays.size();i++){
                 if(V1.intersect(rays[i], entry, exit)){
                     R1.push_back(rays[i]);
                 }
@@ -234,7 +233,7 @@ public:
         std::iota(all_indices.begin(), all_indices.end(), 0);
         std::sample(all_indices.begin(), all_indices.end(), std::back_inserter(sampling_indices),
                     100, std::mt19937{std::random_device{}()});
-        for(int i=0;i<sampling_indices.size();i++)
+        for(size_t i=0;i<sampling_indices.size();i++)
             sampledRays.push_back(rays[sampling_indices[i]]);
     }
 };

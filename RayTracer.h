@@ -56,7 +56,7 @@ public:
 	// Returns the color response associated to point defined as a barycentric interpolation over a triangle of a mesh in the scene.
 	inline Vec3f shade (const Scene & scene, size_t meshIndex, size_t triangleIndex, float u, float v) {
 		const auto& mesh = scene.meshes()[meshIndex];
-		const auto& P = mesh.vertexPositions();
+//		const auto& P = mesh.vertexPositions();
 		const auto& N = mesh.vertexNormals();
 		const Vec3i& triangle = mesh.indexedTriangles()[triangleIndex];
 		Vec3f hitNormal = normalize((1.f - u - v) * N[triangle[0]] + u * N[triangle[1]] + v * N[triangle[2]]);
@@ -70,13 +70,13 @@ public:
 		size_t w = image.width();
 		size_t h = image.height();
 		const Camera& camera = scene.camera();
-		for (int y = 0; y < h; y++) {
+		for (size_t y = 0; y < h; y++) {
 			static int progress = 0;
 			progress++;
 			if (progress % 10 == 0)
 				std::cout << ".";
 #pragma omp parallel for
-			for (int x = 0; x < w; x++) {
+			for (size_t x = 0; x < w; x++) {
 				Vec3f colorResponse;
 				Ray ray = camera.rayAt (float (x) / w, 1.f - float (y) / h);
 				size_t meshIndex, triangleIndex;
@@ -97,8 +97,11 @@ public:
         // Todo: do we need Ray.x and Ray.y?
 
 #pragma omp parallel for
-        for(int i = 0; i<Rays.size(); i++) {
-            std::cout << "."; // prints the progress
+        for(size_t i = 0; i<Rays.size(); i++) {
+            static int progress = 0;
+            progress++;
+            if (progress % 10000 == 0)
+                std::cout << ".";
             if(visited_rays[Rays[i].x][Rays[i].y])
                 continue;
             visited_rays[Rays[i].x][Rays[i].y] = true;

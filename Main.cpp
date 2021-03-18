@@ -98,13 +98,13 @@ void with_DACRT(Image& image, Scene& scene){
 
     auto& camera = scene.camera();
     auto& mesh = scene.meshes()[0];
-    auto& P = mesh.vertexPositions();
-    auto& T = mesh.indexedTriangles();
+//    auto& P = mesh.vertexPositions();
+//    auto& T = mesh.indexedTriangles();
 
     // todo: ray filling (try not to copy)
     std::vector<Ray> rays;
-    for (int y = 0; y < h; y++) {
-        for (int x = 0; x < w; x++) {
+    for (size_t y = 0; y < h; y++) {
+        for (size_t x = 0; x < w; x++) {
             Ray r = camera.rayAt (float (x) / w, 1.f - float (y) / h);
             r.x = x;
             r.y = y;

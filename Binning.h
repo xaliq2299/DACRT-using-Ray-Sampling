@@ -27,7 +27,7 @@ public:
         this->aabb = AABB(mesh);
         this->bin_length = get_bin_length();
 
-        for(int i=0;i<K-1;i++){
+        for(size_t i=0;i<K-1;i++){
             Bin bin;
             bins.push_back(bin);
         }
@@ -39,7 +39,7 @@ public:
         this->aabb = aabb;
         this->bin_length = get_bin_length();
 
-        for(int i=0;i<K-1;i++){
+        for(size_t i=0;i<K-1;i++){
             Bin bin;
             bins.push_back(bin);
         }
@@ -216,13 +216,13 @@ public:
     }
 
     void print_summary(){ // for debugging purposes
-        for(int k=0;k<bins.size();k++){ // Binning should start from k=1
+        for(size_t k=0;k<bins.size();k++){ // Binning should start from k=1
             std::cout << "\nBin " << k+1 << '\n';
 
             std::cout << "Left AABB: ";
             bins[k].box_left.print();
             std::cout << "Left AABB Triangles: {";
-            for(int tr_ind = 0;tr_ind<bins[k].T_left.size();tr_ind++){
+            for(size_t tr_ind = 0;tr_ind<bins[k].T_left.size();tr_ind++){
                 std::cout << bins[k].T_left[tr_ind] << ", ";
             }
             std::cout << "}.\n";
@@ -231,7 +231,7 @@ public:
             std::cout << "Right AABB: ";
             bins[k].box_right.print();
             std::cout << "Right AABB Triangles: {";
-            for(int tr_ind = 0;tr_ind<bins[k].T_right.size();tr_ind++){
+            for(size_t tr_ind = 0;tr_ind<bins[k].T_right.size();tr_ind++){
                 std::cout << bins[k].T_right[tr_ind] << ", ";
             }
             std::cout << "}.\n";
