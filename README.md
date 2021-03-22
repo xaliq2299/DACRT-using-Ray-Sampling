@@ -4,7 +4,7 @@
 - [X] Remove warnings
 - [X] Fix todos
 - [X] For each ray: x and y
-- [ ] Remove unnecessary debugging codes
+- [X] Remove unnecessary debugging codes
 - [ ] Should I construct the AABB in Main?
 - [ ] Values for some consts: thresholds, cost consts, etc.
 - [ ] Check the image dimension and macro definitions

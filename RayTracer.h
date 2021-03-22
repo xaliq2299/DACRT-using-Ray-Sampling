@@ -14,7 +14,7 @@ using namespace std;
 
 class RayTracer {
 public:
-    // boolean array that keeps track of whether the arrays were visited or not. The dimensions are the same as image width and height
+    // boolean array that keeps track of whether the rays were visited or not. The dimensions are the same as image width and height
     bool visited_rays [480][270] = { {false} };
 
 	RayTracer () {}
@@ -56,7 +56,7 @@ public:
 	// Returns the color response associated to point defined as a barycentric interpolation over a triangle of a mesh in the scene.
 	inline Vec3f shade (const Scene & scene, size_t meshIndex, size_t triangleIndex, float u, float v) {
 		const auto& mesh = scene.meshes()[meshIndex];
-//		const auto& P = mesh.vertexPositions();
+		const auto& P = mesh.vertexPositions();
 		const auto& N = mesh.vertexNormals();
 		const Vec3i& triangle = mesh.indexedTriangles()[triangleIndex];
 		Vec3f hitNormal = normalize((1.f - u - v) * N[triangle[0]] + u * N[triangle[1]] + v * N[triangle[2]]);
@@ -88,7 +88,7 @@ public:
 		}
 	}
 
-    // Rendering function remastered for the project
+    // Rendering function remastered for DACRT
     inline void render (const Scene& scene, Image& image, vector<Ray>& Rays) {
         size_t w = image.width();
         size_t h = image.height();

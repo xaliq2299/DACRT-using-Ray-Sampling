@@ -1,7 +1,3 @@
-//
-// Created by khalig on 08.03.21.
-//
-
 #ifndef MYRAYTRACER_BINNING_H
 #define MYRAYTRACER_BINNING_H
 
@@ -45,49 +41,6 @@ public:
         }
     }
 
-    /*
-    AABB construct_AABB(){
-        std::vector<Triangle> indexedTriangles = mesh.indexedTriangles();
-        std::vector<Vec3f> vertexPositions = mesh.vertexPositions();
-
-//        float min_x = numeric_limits<float>::max(), min_y = numeric_limits<float>::max(), min_z = numeric_limits<float>::max();
-//        float max_x = -numeric_limits<float>::min(), max_y = -numeric_limits<float>::min(), max_z = -numeric_limits<float>::min();
-        float min_x = vertexPositions[0][0], min_y = vertexPositions[0][1], min_z = vertexPositions[0][2];
-        float max_x = vertexPositions[0][0], max_y = vertexPositions[0][1], max_z = vertexPositions[0][2];
-        for(size_t ver_ind=1;ver_ind<vertexPositions.size();ver_ind++){
-            float cur_x = vertexPositions[ver_ind][0];
-            float cur_y = vertexPositions[ver_ind][1];
-            float cur_z = vertexPositions[ver_ind][2];
-
-            if(cur_x < min_x){
-                min_x = cur_x;
-            }
-            if(cur_y < min_y){
-                min_y = cur_y;
-            }
-            if(cur_z < min_z){
-                min_z = cur_z;
-            }
-
-            if(cur_x > max_x){
-                max_x = cur_x;
-            }
-            if(cur_y > max_y){
-                max_y = cur_y;
-            }
-            if(cur_z > max_z){
-                max_z = cur_z;
-            }
-        }
-
-//        std::cout << "Constructed AABB\n";
-//        std::cout << min_x << " " << min_y << " " << min_z << '\n';
-//        std::cout << max_x << " " << max_y << " " << max_z << '\n';
-        AABB constructed_aabb({min_x, min_y, min_z}, {max_x, max_y, max_z});
-        return constructed_aabb;
-    }
-     */
-
     size_t find_binning_axis(){
         Vec3f min = aabb.get_min(), max = aabb.get_max();
         std::vector<int> diff;
@@ -109,13 +62,11 @@ public:
     }
 
     void fill_bins(std::vector<Triangle>& triangles){
-//        std::vector<Triangle> indexedTriangles = mesh.indexedTriangles();
         std::vector<Vec3f> vertexPositions = mesh.vertexPositions();
 
         size_t axis_ind = find_binning_axis();
         float start = aabb.get_min()[axis_ind];
         for(size_t k=0;k<K-1;k++){
-//            std::cout << "Bin " << k << ": ";
             float min_x_left = vertexPositions[triangles[0][0]][0],
             min_y_left = vertexPositions[triangles[0][0]][1],
             min_z_left = vertexPositions[triangles[0][0]][2];
@@ -129,10 +80,8 @@ public:
             max_y_right = vertexPositions[triangles[0][0]][1],
             max_z_right = vertexPositions[triangles[0][0]][2];
 
-            // std::cout << "Bin " << k << ": position " << position+k*bin_length << '\n';
             float position = start+(k+1)*bin_length;
             for(size_t tr_ind=0;tr_ind<triangles.size();tr_ind++){
-//                std::cout << "Triangle " << tr_ind+1 << ", ";
                 float a = vertexPositions[triangles[tr_ind][0]][axis_ind],
                       b = vertexPositions[triangles[tr_ind][1]][axis_ind],
                       c = vertexPositions[triangles[tr_ind][2]][axis_ind];
@@ -147,13 +96,8 @@ public:
                 float z1 = vertexPositions[triangles[tr_ind][0]][2];
                 float z2 = vertexPositions[triangles[tr_ind][1]][2];
                 float z3 = vertexPositions[triangles[tr_ind][2]][2];
-//                std::cout << vertexPositions[indexedTriangles[tr_ind][0]] << " "
-//                          << vertexPositions[indexedTriangles[tr_ind][1]] << " "
-//                          << vertexPositions[indexedTriangles[tr_ind][2]] << '\n';
 
                 if(barycenter > position) {
-//                    std::cout << "goes to right\n";
-//                    std::cout << "Inside barycenter check right\n";
                     bins[k].T_right.push_back(triangles[tr_ind]);
                     float cur_max_x_right = std::max(std::max(x1,x2), x3);
                     float cur_min_x_right = std::min(std::min(x1,x2), x3);
@@ -174,11 +118,8 @@ public:
                         min_y_right = cur_min_y_right;
                     if(cur_min_z_right < min_z_right)
                         min_z_right = cur_min_z_right;
-                    // std::cout << "Inside barycenter check right\n";
                 }
                 else{
-//                    std::cout << "goes to left\n";
-//                    std::cout << "Inside barycenter check left\n";
                     bins[k].T_left.push_back(triangles[tr_ind]);
                     float cur_min_x_left = std::min(std::min(x1,x2), x3);
                     float cur_max_x_left = std::max(std::max(x1,x2), x3);
@@ -201,20 +142,15 @@ public:
                         max_y_left = cur_max_y_left;
                     if(cur_max_z_left > max_z_left)
                         max_z_left = cur_max_z_left;
-                    // std::cout << "Inside barycenter check left\n";
                 }
             }
             bins[k].box_left  = AABB({min_x_left, min_y_left, min_z_left}, {max_x_left, max_y_left, max_z_left});
             bins[k].box_right = AABB({min_x_right, min_y_right, min_z_right}, {max_x_right, max_y_right, max_z_right});
-//            std::cout << "Left box min: " << min_x_left << " " << min_y_left << " " << min_z_left << '\n';
-//            std::cout << "Left box max: " << max_x_left << " " << max_y_left << " " << max_z_left << '\n';
-//            std::cout << "Right box min: " << min_x_right << " " << min_y_right << " " << min_z_right << '\n';
-//            std::cout << "Right box max: " << max_x_right << " " << max_y_right << " " << max_z_right << '\n';
         }
     }
 
     void print_summary(){ // for debugging purposes
-        for(size_t k=0;k<bins.size();k++){ // Binning should start from k=1
+        for(size_t k=0;k<bins.size();k++){
             std::cout << "\nBin " << k+1 << '\n';
 
             std::cout << "Left AABB: ";
@@ -224,7 +160,6 @@ public:
                 std::cout << bins[k].T_left[tr_ind] << ", ";
             }
             std::cout << "}.\n";
-
 
             std::cout << "Right AABB: ";
             bins[k].box_right.print();

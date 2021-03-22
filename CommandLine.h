@@ -23,7 +23,6 @@ public:
     inline int dacrt() const { return m_dacrt; }
 
 	void printUsage(const char* command) {
-//		std::cerr << "USAGE: " << command << " [-w/-width <image width>][-h/-height <image height>][-o/-output <outputfilename>" << std::endl;
 		std::cerr << "USAGE: " << command << " [-d/-dacrt d][-w/-width <image width>][-h/-height <image height>][-o/-output <outputfilename>]" << std::endl;
 	}
 

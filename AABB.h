@@ -1,7 +1,3 @@
-//
-// Created by khalig on 08.03.21.
-//
-
 #ifndef MYRAYTRACER_AABB_H
 #define MYRAYTRACER_AABB_H
 
@@ -19,8 +15,6 @@ public:
         std::vector<Triangle> indexedTriangles = mesh.indexedTriangles();
         std::vector<Vec3f> vertexPositions = mesh.vertexPositions();
 
-//        float min_x = numeric_limits<float>::max(), min_y = numeric_limits<float>::max(), min_z = numeric_limits<float>::max();
-//        float max_x = -numeric_limits<float>::min(), max_y = -numeric_limits<float>::min(), max_z = -numeric_limits<float>::min();
         float min_x = vertexPositions[0][0], min_y = vertexPositions[0][1], min_z = vertexPositions[0][2];
         float max_x = vertexPositions[0][0], max_y = vertexPositions[0][1], max_z = vertexPositions[0][2];
         for(size_t ver_ind=1;ver_ind<vertexPositions.size();ver_ind++){

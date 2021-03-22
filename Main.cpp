@@ -10,20 +10,19 @@
 #include "Mesh.h"
 #include "Scene.h"
 #include "RayTracer.h"
-
 #include "AABB.h"
 #include "Binning.h"
 #include "Dacrt.h"
+
 
 void without_DACRT(Image& image, Scene& scene); // old rendering
 void with_DACRT(Image& image, Scene& scene); // new rendering with DACRT
 
 int main (int argc, char ** argv) {
-
 	// Parsing the command line arguments
 	CommandLine args;
 	if (argc <= 1){
-//            std::cerr << e.what() << std::endl;
+            // std::cerr << e.what() << std::endl;
             args.printUsage (argv[0]);
             exit(1);
 	}
