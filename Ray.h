@@ -13,8 +13,16 @@ public:
     inline const Vec3f & origin () const { return m_origin; }
     
     inline const Vec3f & direction () const { return m_direction; }
-    
-	/// Return true if a the ray intersection the triangle [p0,p1,p2]. In this case, (u,v) are filled with barycentric coordinates (with the third one w = 1.0 - u - v), t with the distance from the origin to the intersection 
+
+    inline int x () const { return m_x; }
+
+    inline int y () const { return m_y; }
+
+    inline void x (int x_val) { m_x = x_val; }
+
+    inline void y (int y_val) { m_y = y_val; }
+
+	/// Return true if a the ray intersection the triangle [p0,p1,p2]. In this case, (u,v) are filled with barycentric coordinates (with the third one w = 1.0 - u - v), t with the distance from the origin to the intersection
     bool triangleIntersect (const Vec3f &p0,
                             const Vec3f &p1,
                             const Vec3f &p2,
@@ -22,9 +30,8 @@ public:
                             float & v,
                             float & t) const;
 
-//private: // todo private or public?
+private:
     Vec3f m_origin;
     Vec3f m_direction;
-    int x, y; // todo: try not to copy
+    int m_x, m_y;
 };
-

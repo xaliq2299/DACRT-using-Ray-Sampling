@@ -18,8 +18,6 @@
 void without_DACRT(Image& image, Scene& scene); // old rendering
 void with_DACRT(Image& image, Scene& scene); // new rendering with DACRT
 
-// todo: #pragma stuff
-// Usage: argv[0] [-o file.ppm]
 int main (int argc, char ** argv) {
 
 	// Parsing the command line arguments
@@ -55,8 +53,6 @@ int main (int argc, char ** argv) {
 				  float(args.width()) / args.height());\
 	scene.camera() = camera;
 
-	// todo: light source (needed for shading, maybe won't add)
-
 	// Loading a mesh
 	Mesh mesh;
 	try {
@@ -70,16 +66,12 @@ int main (int argc, char ** argv) {
 
 	// Rendering
 	image.fillBackground ();
-//	std::cout << "Ray tracing: starts";
-	if(withDACRT){
-	    std::cout << "With\n";
+	std::cout << "Ray tracing: starts";
+	if(withDACRT)
         with_DACRT(image, scene);
-    }
-	else{
-	    std::cout << "Without\n";
+	else
         without_DACRT(image, scene);
-    }
-//	std::cout << "ends." << std::endl;
+	std::cout << "ends." << std::endl;
 
 	return 0;
 }
@@ -91,30 +83,15 @@ void without_DACRT(Image& image, Scene& scene){ // rendering of the professor
 }
 
 void with_DACRT(Image& image, Scene& scene){
-    // TODO: should I construct the AABB here in Main, or the way I did is ok?
-    // TODO: try not to copy the following code
     size_t w = image.width();
     size_t h = image.height();
 
     auto& camera = scene.camera();
     auto& mesh = scene.meshes()[0];
-//    auto& P = mesh.vertexPositions();
-//    auto& T = mesh.indexedTriangles();
-
-    // todo: ray filling (try not to copy)
-    std::vector<Ray> rays;
-    for (size_t y = 0; y < h; y++) {
-        for (size_t x = 0; x < w; x++) {
-            Ray r = camera.rayAt (float (x) / w, 1.f - float (y) / h);
-            r.x = x;
-            r.y = y;
-            rays.push_back(r);
-        }
-    }
-
-    // Here starts mine
+    std::vector<Ray> rays = camera.fill_rays(w,h);
     int nbBins = 5;
     RayTracer rayTracer;
+
     DACRT dacrt(mesh, image, scene, rayTracer, nbBins);
     AABB volume(mesh);
     auto& triangles = mesh.indexedTriangles();

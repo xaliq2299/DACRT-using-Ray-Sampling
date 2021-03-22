@@ -7,7 +7,6 @@ public:
     Scene scene;
     RayTracer rayTracer;
     int sentinal_nb_triangles = 0;
-//    std::vector<Ray> Rays; // todo needed or no? passing to 'run' method directly while calling it
     Mesh mesh; // mesh data
     size_t K; // number of bins
     int i;
@@ -46,10 +45,9 @@ public:
 
 //        std::cout << "# active rays=" << nbActiveRays << " # triangles=" << nbTriangles << '\n';
 
-        // Todo: Ray sampling should come after Naive RT or?
         // Ray sampling
         if(nbActiveRays > 1000){ // sample 100 rays if enough active rays
-            sample(rays, sampledRays); // todO: maybe some error with sampling?
+            sample(rays, sampledRays);
             nbSampleRays = 100;
         }
         else{
@@ -68,12 +66,11 @@ public:
 
 
         // The recursion starts here - the following is the basic step
-        bool small_enough = nbActiveRays < 10 || nbTriangles < 20; // todo: which values?
+        bool small_enough = nbActiveRays < 10 || nbTriangles < 20;
         if(small_enough){
-            // todo: naive RT
 //            std::cout << "Entered Naive RT\n";
 //            rayTracer.render(scene, image, rays);
-            rayTracer.render(scene, image, rays);
+            rayTracer.render(scene, image, rays); // Naive RT
 //            std::cout << "Finished Naive RT\n";
             return;
         }
@@ -91,8 +88,6 @@ public:
             Intersect(r, binning.bins, c_left, c_right, n_left, n_right);
         }
 
-        // SOLVED! TODO: check why first bin has always 100 sample rays in the right bin. Problem with index during the binning process
-
         // Partitioning using Cost function
         float C_min = std::numeric_limits<float>::infinity(); size_t j_min = 0;
         std::vector<float> alpha_left(K-1, 0), alpha_right(K-1, 0);
@@ -101,7 +96,7 @@ public:
             alpha_left[j] = float(c_left[j])/float(nbSampleRays);
             alpha_right[j] = float(c_right[j])/float(nbSampleRays);
             // calculating cost C
-            float C_T = 1.0, C_I = 1.0; // todo: constants
+            float C_T = 1.0, C_I = 1.0;
             int N_L = binning.bins[j].T_left.size(), N_R = binning.bins[j].T_right.size();
             // debugging
 //            std::cout << "alpha_left=" << alpha_left[j] << " , alpha_right[j]=" << alpha_right[j] << '\n';
@@ -120,7 +115,6 @@ public:
 //            exit(1);
 //        }
 
-        // SOLVED! TODO: why the entries for the first bin are always splitted as 0 in the left and 100 in the right
         // Printing for debugging
         /*
         std::cout << "j_min = " << j_min << ", C_min = " << C_min << '\n';
@@ -144,7 +138,6 @@ public:
         std::cout << "}.\n";
         */
 
-        // TODO: try to avoid non-reference passing for the functions
         // Traversal order
         AABB V0, V1;
         float alpha0, alpha1;
@@ -161,9 +154,7 @@ public:
         }
 
         // Step 4 - Ray filtering
-        // TODO: the problem is probably in the alpha > 0.5 condition
         float entry, exit;
-        // TODO: now we are using 0.5 as a threshold, try to calculate the cost later?
 //        std::cout << "alpha0 = " << alpha0 << '\n';
 //        std::cout << "Cmin=" << C_min << "j_min = " << j_min << '\n';
         if(alpha0 > 0.5){ // skip ray filtering
@@ -209,8 +200,7 @@ public:
     void Intersect(Ray& r, std::vector<Bin>& bins, std::vector<int>& c_left, std::vector<int>& c_right,
                    std::vector<int>& n_left, std::vector<int>& n_right){
         float entry, exit;
-        for(size_t j=0;j<K-1;j++){ // todo: be precise about the indices of the bins
-            // todo: should d_left and d_right be arrays?
+        for(size_t j=0;j<K-1;j++){
             float d_left = std::numeric_limits<float>::infinity(), d_right = std::numeric_limits<float>::infinity();
             if(bins[j].box_left.intersect(r, entry, exit)){
                 c_left[j] += 1;

@@ -93,24 +93,23 @@ public:
         size_t w = image.width();
         size_t h = image.height();
         const Camera& camera = scene.camera();
-        // TODO: check dims
-        // Todo: do we need Ray.x and Ray.y?
 
 #pragma omp parallel for
         for(size_t i = 0; i<Rays.size(); i++) {
+            int x = Rays[i].x(), y = Rays[i].y();
             static int progress = 0;
             progress++;
             if (progress % 10000 == 0)
                 std::cout << ".";
-            if(visited_rays[Rays[i].x][Rays[i].y])
+            if(visited_rays[x][y])
                 continue;
-            visited_rays[Rays[i].x][Rays[i].y] = true;
+            visited_rays[x][y] = true;
             float u, v, d;
             size_t meshIndex, triangleIndex;
-            Ray ray = camera.rayAt (float (Rays[i].x) / w, 1.f - float (Rays[i].y) / h);
+            Ray ray = camera.rayAt (float (x) / w, 1.f - float (y) / h);
             bool intersectionFound = rayTrace (ray, scene, meshIndex, triangleIndex, u, v, d);
             if (intersectionFound && d > 0.f){
-                image (Rays[i].x, Rays[i].y) = shade (scene, meshIndex, triangleIndex, u, v);
+                image (x,y) = shade (scene, meshIndex, triangleIndex, u, v);
             }
         }
     }

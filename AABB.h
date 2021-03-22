@@ -63,17 +63,16 @@ public:
         std::cout << "For the given AABB, minimum=" << minimum << ", maximum=" << maximum << '\n';
     }
 
-    // todo: bool intersect to be changed
     bool intersect(const Ray &r, float &entry, float &exit)
     {
-        Vec3f min = get_min(), max = get_max();
-        float tmin = (min[0] - r.m_origin[0]) / r.m_direction[0];
-        float tmax = (max[0] - r.m_origin[0]) / r.m_direction[0];
+        Vec3f min = get_min(), max = get_max(), origin = r.origin(), direction = r.direction();
+        float tmin = (min[0] - origin[0]) / direction[0];
+        float tmax = (max[0] - origin[0]) / direction[0];
 
         if (tmin > tmax) swap(tmin, tmax);
 
-        float tymin = (min[1] - r.m_origin[1]) / r.m_direction[1];
-        float tymax = (max[1] - r.m_origin[1]) / r.m_direction[1];
+        float tymin = (min[1] - origin[1]) / direction[1];
+        float tymax = (max[1] - origin[1]) / direction[1];
 
         if (tymin > tymax) swap(tymin, tymax);
 
@@ -86,8 +85,8 @@ public:
         if (tymax < tmax)
             tmax = tymax;
 
-        float tzmin = (min[2] - r.m_origin[2]) / r.m_direction[2];
-        float tzmax = (max[2] - r.m_origin[2]) / r.m_direction[2];
+        float tzmin = (min[2] - origin[2]) / direction[2];
+        float tzmax = (max[2] - origin[2]) / direction[2];
 
         if (tzmin > tzmax) swap(tzmin, tzmax);
 
@@ -99,8 +98,7 @@ public:
 
         if (tzmax < tmax)
             tmax = tzmax;
-        //entry = r.m_origin+ tmin*r.m_direction;
-        //exit  = r.m_origin+tmax*r.m_direction;
+
         entry = tmin;
         exit  = tmax;
 

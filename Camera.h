@@ -30,6 +30,18 @@ public:
 		return Ray (m_position, normalize (m_lowerLeftCorner + u * m_horizontal + v * m_vertical - m_position));
 	}
 
+	std::vector<Ray> fill_rays(size_t width, size_t height) {
+        std::vector<Ray> rays;
+        for (size_t y = 0; y < height; y++) {
+            for (size_t x = 0; x < width; x++) {
+                Ray r = rayAt (float (x) / width, 1.f - float (y) / height);
+                r.x(x); r.y(y);
+                rays.push_back(r);
+            }
+        }
+        return rays;
+    }
+
 private:
 	float m_verticalFoV;
 	float m_aspectRatio;

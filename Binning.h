@@ -33,7 +33,7 @@ public:
         }
     }
 
-    Binning(Mesh& mesh, AABB aabb, size_t K){
+    Binning(Mesh& mesh, AABB& aabb, size_t K){
         this->mesh = mesh;
         this->K = K;
         this->aabb = aabb;
@@ -88,7 +88,7 @@ public:
     }
      */
 
-    size_t find_binning_axis(){ // todo: binning is done based on the longest axis
+    size_t find_binning_axis(){
         Vec3f min = aabb.get_min(), max = aabb.get_max();
         std::vector<int> diff;
         for(int i=0;i<3;i++) {
@@ -137,7 +137,7 @@ public:
                       b = vertexPositions[triangles[tr_ind][1]][axis_ind],
                       c = vertexPositions[triangles[tr_ind][2]][axis_ind];
                 float barycenter = (a+b+c)/3;
-                // todo: what about the equal case?
+
                 float x1 = vertexPositions[triangles[tr_ind][0]][0];
                 float x2 = vertexPositions[triangles[tr_ind][1]][0];
                 float x3 = vertexPositions[triangles[tr_ind][2]][0];
@@ -204,12 +204,10 @@ public:
                     // std::cout << "Inside barycenter check left\n";
                 }
             }
-            // todo: fill also the left and right aabbs (V_left and V_right volumes) for the bin SOLVED!
             bins[k].box_left  = AABB({min_x_left, min_y_left, min_z_left}, {max_x_left, max_y_left, max_z_left});
             bins[k].box_right = AABB({min_x_right, min_y_right, min_z_right}, {max_x_right, max_y_right, max_z_right});
 //            std::cout << "Left box min: " << min_x_left << " " << min_y_left << " " << min_z_left << '\n';
 //            std::cout << "Left box max: " << max_x_left << " " << max_y_left << " " << max_z_left << '\n';
-            // todo: fix problem in the following. SOLVED!
 //            std::cout << "Right box min: " << min_x_right << " " << min_y_right << " " << min_z_right << '\n';
 //            std::cout << "Right box max: " << max_x_right << " " << max_y_right << " " << max_z_right << '\n';
         }
