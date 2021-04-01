@@ -1,6 +1,4 @@
 *.ppm
-*.off
 build/
 .idea/
 cmake-build-debug/
-draft.txt
