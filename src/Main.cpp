@@ -75,7 +75,7 @@ int main (int argc, char ** argv) {
 	return 0;
 }
 
-void without_DACRT(Image& image, Scene& scene){ // rendering of the professor
+void without_DACRT(Image& image, Scene& scene){
     RayTracer rayTracer;
     rayTracer.render (scene, image);
     image.savePPM ("rendering.ppm");

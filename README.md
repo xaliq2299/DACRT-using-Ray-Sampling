@@ -31,6 +31,5 @@ However we also have other options available:
 * -w or -width: sets a certain width for the image. Requires an integer value.
 * -h or -height: sets a certain height for the image. Requires an integer value.
 * -i or -input: sets an input filename. Requires a string value.
-* -o or -output: sets an output filename. Requires a string value.
 * -h or -help: displays the usage of the program.  
-Note that in case of incorrect and inappropriate option choices, the program will terminate resulting in Segmentation Fault.
+*Note*: In case of incorrect and inappropriate option choices, the program will terminate resulting in Segmentation Fault.
