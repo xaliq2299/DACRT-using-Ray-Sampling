@@ -57,6 +57,7 @@ public:
         std::cout << "For the given AABB, minimum=" << minimum << ", maximum=" << maximum << '\n';
     }
 
+    // a helpful source: https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-box-intersection
     bool intersect(const Ray &r, float &entry, float &exit)
     {
         Vec3f min = get_min(), max = get_max(), origin = r.origin(), direction = r.direction();

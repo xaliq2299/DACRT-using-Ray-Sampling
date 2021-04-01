@@ -1,6 +1,9 @@
 // Header file of Divide-and-Conquer Ray Tracing (DACRT)
 #include "Ray.h"
 
+#define MAX_RAYS 10
+#define MAX_TRIANGLES 20
+
 class DACRT {
 public:
     Image image;
@@ -9,7 +12,7 @@ public:
     int sentinal_nb_triangles = 0;
     Mesh mesh; // mesh data
     size_t K; // number of bins
-    int i;
+    int i; // counter
 
     DACRT(Mesh& mesh, Image image, Scene scene, RayTracer rayTracer, int K){
         i = 0;
@@ -26,24 +29,9 @@ public:
      T - set of triangles
     */
     void run(AABB& V, std::vector<Ray>& rays, std::vector<Triangle>& triangles) {
-        // debugging
         i+=1;
-//        if(i == 12){
-//            exit(1);
-//        }
-
-//        if(triangles.size() == 21){
-//            image.savePPM("DACRT");
-//            exit(1);
-//        }
-
-//        std::cout << "Recursive step " << i << '\n';
-
         int nbActiveRays = rays.size(), nbTriangles = triangles.size(), nbSampleRays;
         std::vector<Ray> sampledRays;
-        // what about # triangles?
-
-//        std::cout << "# active rays=" << nbActiveRays << " # triangles=" << nbTriangles << '\n';
 
         // Ray sampling
         if(nbActiveRays > 1000){ // sample 100 rays if enough active rays
@@ -55,7 +43,6 @@ public:
             nbSampleRays = nbActiveRays;
         }
 
-
         if(nbTriangles == sentinal_nb_triangles){
             rayTracer.render(scene, image, rays);
             return;
@@ -64,21 +51,16 @@ public:
             sentinal_nb_triangles = nbTriangles;
         }
 
-
         // The recursion starts here - the following is the basic step
-        bool small_enough = nbActiveRays < 10 || nbTriangles < 20;
+        bool small_enough = nbActiveRays < MAX_RAYS || nbTriangles < MAX_TRIANGLES;
         if(small_enough){
-//            std::cout << "Entered Naive RT\n";
-//            rayTracer.render(scene, image, rays);
+            // std::cout << "Entered Naive RT\n";
             rayTracer.render(scene, image, rays); // Naive RT
-//            std::cout << "Finished Naive RT\n";
             return;
         }
 
-//        Binning binning(mesh, K); // subdivide V into K bins
-        Binning binning(mesh, V, K); // maybe more efficient, trying to avoid the mesh passing each time?
+        Binning binning(mesh, V, K); // apply K-binning
         binning.fill_bins(triangles); // calculate data for each bin Bj
-//        binning.print_summary();
 
         // initialize arrays c_left, c_right, n_left, n_right
         std::vector<int> c_left(K-1, 0), c_right(K-1, 0), n_left(K-1, 0), n_right(K-1, 0);
@@ -92,51 +74,17 @@ public:
         float C_min = std::numeric_limits<float>::infinity(); size_t j_min = 0;
         std::vector<float> alpha_left(K-1, 0), alpha_right(K-1, 0);
         for(size_t j=0;j<K-1;j++){
-//            std::cout << "Bin " << j+1 << '\n';
             alpha_left[j] = float(c_left[j])/float(nbSampleRays);
             alpha_right[j] = float(c_right[j])/float(nbSampleRays);
             // calculating cost C
             float C_T = 1.0, C_I = 1.0;
             int N_L = binning.bins[j].T_left.size(), N_R = binning.bins[j].T_right.size();
-            // debugging
-//            std::cout << "alpha_left=" << alpha_left[j] << " , alpha_right[j]=" << alpha_right[j] << '\n';
-//            std::cout << "N_L = " << N_L << ", N_R = " << N_R << '\n';
             float C = C_T + C_I*(alpha_left[j]*float(N_L) + alpha_right[j]*float(N_R));
-//            std::cout << " C = " << C << '\n';
             if(C <= C_min){
                 j_min = j;
                 C_min = C;
             }
         }
-        // debugging
-//        if(triangles.size() == 21){
-//            binning.print_summary();
-//            std::cout << "Cmin = " << C_min << ", jmin = " << j_min << '\n';
-//            exit(1);
-//        }
-
-        // Printing for debugging
-        /*
-        std::cout << "j_min = " << j_min << ", C_min = " << C_min << '\n';
-        std::cout << "C_left = {";
-        for(int i=0;i<c_left.size();i++) {
-            std::cout << c_left[i] << ", ";
-        }
-        std::cout << "}.\n";
-        std::cout << "C_right = {";
-        for(int i=0;i<c_right.size();i++) {
-            std::cout << c_right[i] << ", ";
-        }
-        std::cout << "}.\n";
-        std::cout << "n_left = {";
-        for(int i=0;i<n_left.size();i++)
-            std::cout << n_left[i] << ", ";
-        std::cout << "}.\n";
-        std::cout << "n_right = {";
-        for(int i=0;i<n_right.size();i++)
-            std::cout << n_right[i] << ", ";
-        std::cout << "}.\n";
-        */
 
         // Traversal order
         AABB V0, V1;
@@ -155,37 +103,26 @@ public:
 
         // Step 4 - Ray filtering
         float entry, exit;
-//        std::cout << "alpha0 = " << alpha0 << '\n';
-//        std::cout << "Cmin=" << C_min << "j_min = " << j_min << '\n';
         if(alpha0 > 0.5){ // skip ray filtering
-//            std::cout << ("Entered 0 left\n");
             run(V0, rays, T0);
             i-=1;
         }
         else{ // apply ray filtering
-//            std::cout << ("Entered 0 right\n");
             std::vector<Ray> R0;
-
-//            sample(rays, R0);
             for(size_t i=0;i<rays.size();i++){
                 if(V0.intersect(rays[i], entry, exit)){
                     R0.push_back(rays[i]);
                 }
             }
-
             run(V0, R0, T0);
             i-=1;
         }
         if(alpha1 > 0.5){ // skip ray filtering
-//            std::cout << ("Entered 1 left\n");
             run(V1, rays, T1);
             i-=1;
         }
         else{
-//            std::cout << ("Entered 1 right\n");
             std::vector<Ray> R1;
-
-//            sample(rays, R1);
             for(size_t i=0;i<rays.size();i++){
                 if(V1.intersect(rays[i], entry, exit)){
                     R1.push_back(rays[i]);

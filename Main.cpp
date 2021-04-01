@@ -55,7 +55,7 @@ int main (int argc, char ** argv) {
 	// Loading a mesh
 	Mesh mesh;
 	try {
-		mesh.loadOFF("low_res_mesh.off");
+        mesh.loadOFF(args.inputFilename());
 	}
 	catch (const std::exception & e) {
 		std::cerr << e.what() << std::endl;
@@ -92,8 +92,8 @@ void with_DACRT(Image& image, Scene& scene){
     RayTracer rayTracer;
 
     DACRT dacrt(mesh, image, scene, rayTracer, nbBins);
-    AABB volume(mesh);
+    AABB aabb(mesh);
     auto& triangles = mesh.indexedTriangles();
-    dacrt.run(volume, rays, triangles);
+    dacrt.run(aabb, rays, triangles);
     dacrt.image.savePPM("rendering_DACRT.ppm");
 }

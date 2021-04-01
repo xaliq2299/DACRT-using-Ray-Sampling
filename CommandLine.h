@@ -10,6 +10,7 @@ public:
 		m_width(480),
 		m_height(270),
 		m_outputFilename("output.ppm"),
+		m_inputFilename("mesh_library/low_res_face.off"),
 		m_dacrt(2) {}
 
 	virtual ~CommandLine() {}
@@ -20,10 +21,12 @@ public:
 
 	inline const std::string& outputFilename() const { return m_outputFilename; }
 
+    inline const std::string& inputFilename() const { return m_inputFilename; }
+
     inline int dacrt() const { return m_dacrt; }
 
 	void printUsage(const char* command) {
-		std::cerr << "USAGE: " << command << " [-d/-dacrt d][-w/-width <image width>][-h/-height <image height>][-o/-output <outputfilename>]" << std::endl;
+		std::cerr << "USAGE: " << command << " [-d/-dacrt d][-w/-width <image width>][-h/-height <image height>][-i/-input <inputfilename>][-o/-output <outputfilename>]" << std::endl;
 	}
 
 	inline void parse(int argc, char** argv) {
@@ -47,6 +50,9 @@ public:
 			else if (argi == "-o" || argi == "-output") {
 				m_outputFilename = std::string(argv[++i]);
 			}
+            else if (argi == "-i" || argi == "-input") {
+                m_inputFilename = std::string(argv[++i]);
+            }
 			else if (argi == "-d" || argi == "-dacrt"){
 			    std::cout << "Entered\n";
 			    std::cout << argi << '\n';
@@ -66,5 +72,6 @@ private:
 	size_t m_width;
 	size_t m_height;
 	std::string m_outputFilename;
+	std::string m_inputFilename;
 	int m_dacrt;
 };
