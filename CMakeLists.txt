@@ -15,19 +15,19 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
 add_executable (
 	MyRayTracer
-	Main.cpp
-	CommandLine.h
-	Vec3.h
-	Ray.h
-	Ray.cpp
-	Image.h
-	Camera.h
-	Mesh.h
-	Scene.h
-	RayTracer.h
-	AABB.h
-	Dacrt.h
-	Binning.h)
+	src/Main.cpp
+	src/CommandLine.h
+	src/Vec3.h
+	src/Ray.h
+	src/Ray.cpp
+	src/Image.h
+	src/Camera.h
+	src/Mesh.h
+	src/Scene.h
+	src/RayTracer.h
+	src/AABB.h
+	src/Dacrt.h
+	src/Binning.h)
 
 set_target_properties(MyRayTracer PROPERTIES
     CXX_STANDARD 17
